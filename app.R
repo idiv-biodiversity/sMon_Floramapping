@@ -1,0 +1,296 @@
+library(shiny)
+library(stringr)
+library(sf)
+library(leaflet)
+library(gridExtra)
+library(leaflet.minicharts)
+library(manipulateWidget)
+library(viridis)
+library(pals)
+library(raster)
+library(htmltools)
+library(htmlwidgets)
+library(scales)
+library(cowplot)
+
+
+myLabelFormat = function(..., reverse_order = FALSE){ 
+  if(reverse_order){ 
+    function(type = "numeric", cuts){ 
+      cuts <- sort(cuts, decreasing = T)
+    } 
+  }else{
+    labelFormat(...)
+  }
+}
+
+# Define palette for empty map (i.e. transparent)
+emptypal<-colorRampPalette(c("#ffffff00","#ffffff00"),interpolate="spline")
+
+
+#list all data sets
+filelist<-list.files("./datasets/")
+filetab<- data.frame("Taxon"=paste(word(filelist,2,sep="_"),word(filelist,3,sep="_"), sep="_")
+                     )
+filetab$Taxon<- as.character(filetab$Taxon)
+filetab$Taxon[filetab$Taxon=="empty_ts"]<-"empty"
+filetab<-data.frame("Taxon"=filetab[!duplicated(filetab$Taxon),])
+
+speciesnames<- readRDS("./datasets/speciesnames.rds")
+speciesnames$Species<- as.character(speciesnames$Species)
+Encoding(speciesnames$Species)<- c("UTF-8")
+
+filetab$Species<- speciesnames$Species[match(filetab$Taxon,speciesnames$Taxon)]
+filetab$Species[filetab$Taxon=="empty"]<-c("empty")
+
+
+filetab<-filetab[-which(is.na(filetab$Species)),]
+
+spec_choices<- sort(unique(filetab$Species)[-which(unique(filetab$Species)=="empty")])
+
+bundeslander<- readRDS("./datasets/bundeslander.rds")
+
+## Overview on Species SOP and changes
+species_summary<- readRDS("./datasets/speciessummary.rds")
+
+species_summary$Species<- as.character(species_summary$Species)
+Encoding(species_summary$Species)<-c("UTF-8")
+
+germanmap<- leaflet() %>%
+  addTiles() %>% 
+  addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8) %>%
+  addScaleBar(position=c("bottomright")) %>% syncWith(groupname="germanmaps")
+
+
+## 
+
+
+
+ui<- fluidPage(
+           sidebarPanel(
+                    radioButtons(inputId="Basemap",
+                                 label="Basemap",
+                                 choices=list("Open Street Map"="OpenStreetMap.Mapnik",
+                                              "Satellite (ESRI)"="Esri.WorldImagery"),
+                                 selected="OpenStreetMap.Mapnik"),
+                      br(),
+               selectInput(inputId = "url",
+                           label="Natural Regions",
+                           choices=list("On"= "http://geodienste.bfn.de/ogc/wms/gliederungen?",
+                                        "Off"= NA),
+                           selected = "Off"),
+               br(),
+               selectizeInput("Species",
+                              "Select a Species",
+                              choices=c("choose"="",spec_choices)
+                              ),
+               br(),
+               sliderInput(inputId="Opacity",
+                           label= "Opacity of active layer",
+                           value=0.8,
+                           min=0, max=1, step=0.1)
+               , width=2,
+           br(),
+           plotOutput(outputId = "legends",height = "120px"))
+           ,
+      mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
+                            Shiny.onInputChange("innerWidth", window.innerWidth);
+                                  });
+                                  $(window).resize(function(e) {
+                                  Shiny.onInputChange("innerWidth", window.innerWidth);
+                                  });
+                                  ')),
+                      h4("Maps of occurrence probability"),
+                tabsetPanel(type = "tabs",
+                            tabPanel("Occurence probabilities",
+                                     fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map1")),
+                                              column(4,"1988-1996 (t2)",leafletOutput(outputId="Map2")),
+                                              column(4,"1997-2017 (t3)",leafletOutput(outputId="Map3")))
+                                    )
+                                     ,
+                            tabPanel("Uncertainty (SD)",
+                                     fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map4")),
+                                              column(4,"1988-1996 (t2)",leafletOutput(outputId="Map5")),
+                                              column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
+                                     )),
+                br(),
+                tableOutput(outputId = "table"),
+                width=10)
+)
+
+server<- function(input, output) {
+  output$Map1 = renderLeaflet({germanmap})
+  output$Map2 = renderLeaflet({germanmap})
+  output$Map3 = renderLeaflet({germanmap})
+  output$Map4 = renderLeaflet({germanmap})
+  output$Map5 = renderLeaflet({germanmap})
+  output$Map6 = renderLeaflet({germanmap})
+  
+  
+  
+  observeEvent(c(input$Basemap,input$url,input$Species,input$Opacity),{
+    
+    Species<- if(input$Species=="") {c("empty")} else{input$Species}
+    url<- input$url
+    
+    opac<- if(Species=="empty") {c(0)} else{input$Opacity}
+    
+    
+    line<- which(filetab$Species==Species)[1]
+    
+    mapdata1<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_1_OP.rds"))
+    mapdata2<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_2_OP.rds"))
+    mapdata3<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_3_OP.rds"))
+    mapdata4<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_1_sd.rds"))
+    mapdata5<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_2_sd.rds"))
+    mapdata6<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_3_sd.rds"))
+    
+    k<-which(c(max(values(mapdata1)[-which(is.na(values(mapdata1)))]),max(values(mapdata2)[-which(is.na(values(mapdata2)))]),max(values(mapdata3)[-which(is.na(values(mapdata3)))]))==max(c(values(mapdata1)[-which(is.na(values(mapdata1)))],values(mapdata2)[-which(is.na(values(mapdata2)))],values(mapdata3)[-which(is.na(values(mapdata3)))])))[1]
+    l<-which(c(max(values(mapdata4)[-which(is.na(values(mapdata4)))]),max(values(mapdata5)[-which(is.na(values(mapdata5)))]),max(values(mapdata6)[-which(is.na(values(mapdata6)))]))==max(c(values(mapdata4)[-which(is.na(values(mapdata4)))],values(mapdata5)[-which(is.na(values(mapdata5)))],values(mapdata6)[-which(is.na(values(mapdata6)))])))[1]
+   
+    
+    val_mdat1<- values(mapdata1)[-which(is.na(values(mapdata1)))]
+    val_mdat2<- values(mapdata2)[-which(is.na(values(mapdata2)))]
+    val_mdat3<- values(mapdata3)[-which(is.na(values(mapdata3)))]
+    
+    val_mdat4<- values(mapdata4)[-which(is.na(values(mapdata4)))]
+    val_mdat5<- values(mapdata5)[-which(is.na(values(mapdata5)))]
+    val_mdat6<- values(mapdata6)[-which(is.na(values(mapdata6)))]
+    
+    allvalsop<-data.frame("values"=c(val_mdat1,val_mdat2,val_mdat3))
+    allvalssd<-data.frame("values"=c(val_mdat4,val_mdat5,val_mdat6))
+    
+    
+    
+    op_all_colors<- colorNumeric(viridis(800),
+                                 domain=allvalsop$values,
+                                 na.color = "transparent")
+    
+    colors_op1<- colorRampPalette(op_all_colors(val_mdat1[order(val_mdat1)]),interpolate="linear")
+    colors_op2<- colorRampPalette(op_all_colors(val_mdat2[order(val_mdat2)]),interpolate="linear")
+    colors_op3<- colorRampPalette(op_all_colors(val_mdat3[order(val_mdat3)]),interpolate="linear")
+    
+    sd_all_colors<- colorNumeric(cividis(800),
+                                 domain=allvalssd$values[order(allvalssd$values)],
+                                 na.color = "transparent")
+    
+    colors_sd1<- colorRampPalette(sd_all_colors(val_mdat4[order(val_mdat4)]),interpolate="linear")
+    colors_sd2<- colorRampPalette(sd_all_colors(val_mdat5[order(val_mdat5)]),interpolate="linear")
+    colors_sd3<- colorRampPalette(sd_all_colors(val_mdat6[order(val_mdat6)]),interpolate="linear")
+    
+    legdat_OP<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
+                           "OP"=seq(from=0,to=1,length.out = 800))
+    legdat_sd<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
+                           "sd"=seq(from=min(values(get(paste0("mapdata",l+3)))[-which(is.na(values(get(paste0("mapdata",l+3)))))]),
+                                to=max(values(get(paste0("mapdata",l+3)))[-which(is.na(values(get(paste0("mapdata",l+3)))))]),
+                                length.out = 800))
+    
+    legplot_OP<- get_legend(ggplot()+geom_point(data=legdat_OP,aes(x=dummy,y=OP,fill=OP))+
+                              scale_fill_gradientn(colors = viridis(800),name=c("Occurrence \n probability"))+
+                            theme(legend.title = element_text(size = 9,hjust=0.5),
+                                  legend.text = element_text(size=8)))
+    
+    legplot_sd<- get_legend(ggplot()+geom_point(data=legdat_sd,aes(x=dummy,y=sd,fill=sd))+
+                              scale_fill_gradientn(colors = cividis(800),name=c("Standard \n deviation"))+
+                              theme(legend.title = element_text(size = 9,hjust=0.5),
+                                    legend.text = element_text(size=8)))
+    legends<-plot_grid(legplot_OP,legplot_sd,ncol=2)
+    
+    palette_OP <- colorNumeric(
+        rev(viridis(800)), 
+        domain = rescale(values(get(paste0("mapdata",k))),to=c(0,1)), 
+        na.color = "transparent"
+      )
+    
+    palette_sd <- colorNumeric(
+        rev(cividis(800)), 
+        domain = values(get(paste0("mapdata",l+3))), 
+        na.color = "transparent")
+    
+    leafletProxy("Map1") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
+      addRasterImage(mapdata1,colors = colors_op1(800),opacity = opac) %>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+      
+    leafletProxy("Map2") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
+      addRasterImage(mapdata2,colors = colors_op2(800),opacity = opac)%>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+    
+    
+    leafletProxy("Map3") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
+      addRasterImage(mapdata3,colors = colors_op3(800),opacity = opac)%>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+    
+    
+    
+    leafletProxy("Map4") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
+      addRasterImage(mapdata4,colors = colors_sd1(800),opacity = opac)%>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+    
+    leafletProxy("Map5") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
+      addRasterImage(mapdata5,colors = colors_sd2(800),opacity = opac) %>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+    
+    
+    leafletProxy("Map6") %>% 
+      clearImages() %>%
+      clearControls() %>%
+      clearShapes() %>%
+      addProviderTiles(provider = input$Basemap) %>%
+      addWMSTiles(baseUrl = url,
+                  layers = "Naturraeume", 
+                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
+                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
+      addRasterImage(mapdata6,colors = colors_sd3(800),opacity = opac)%>% 
+      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
+    
+    
+    output$legends = renderPlot({plot(legends)})
+    
+    output$table = renderTable({
+      species_summary[species_summary$Species==Species,]
+    })
+    })
+}    
+
+
+shinyApp(ui,server)
