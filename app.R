@@ -89,9 +89,11 @@ ui<- fluidPage(
                 min=0, max=1, step=0.1)
     , width=2,
     br(),
-    plotOutput(outputId = "legends",height = "120px"))
-  ,
-  mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
+    plotOutput(outputId = "legends",height = "120px"),
+    HTML("<font size=1> <p align='justify'> <em> We are grateful to the tremendous effort of the countless 
+         people who contributed their plant occurrence records to the different sources that underlie this visualization!</em> </p><font>")),
+    br(),
+    mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
                                   Shiny.onInputChange("innerWidth", window.innerWidth);
                                   });
                                   $(window).resize(function(e) {
@@ -100,12 +102,10 @@ ui<- fluidPage(
                                   ')),
             h4("Maps of occurrence probability (OP)"),
             HTML("<font size=2>This site is a companion to the publication of Eichenberg et al. (2020). <br> 
-                 The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. 
-                 Despite careful checking and statistical processing, the maps shown here come <b>without liability for completeness or incompleteness</b>. <br>
                  Occurrence probabilities are estimates of species occurrence probability 
                  corrected for potential biases due to incomplete reporting ('reporting bias') based 
                  on the Frescalo algorithm 
-                 (<a href='https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2011.00146.x'>Hill, 2012</a>). <br>
+                 (<a href='https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2011.00146.x'>Hill, 2012</a>).
                  For detailed information on the Frescalo algorithm and its specifications see Eichenberg et al (2020, Supplementary Information I).</font>"),
             br(),
             tabsetPanel(type = "tabs",
@@ -120,12 +120,17 @@ ui<- fluidPage(
                                           column(4,"1988-1996 (t2)",leafletOutput(outputId="Map5")),
                                           column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
                         )),
+            HTML("<font size=1> <em>The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. <br>
+                 Despite careful checking and statistical processing, the maps shown here come <b>without liability for completeness or incompleteness</b>. 
+                 For detailed information on data sources see Eichenberg et al. (2020).</em>
+                 <font>"),
             br(),
-            HTML("<font size=2>The table below shows SOP<sub>Spec</sub> of the 
+            br(),
+            HTML("<font size=3>The table below shows SOP<sub>Spec</sub> of the 
                  respective species as well as the absolute changes across the 
                  three study periods.</font>"),
             br(),
-            HTML("<font size=2> For details on the calculation of SOP<sub>Spec</sub> 
+            HTML("<font size=3> For details on the calculation of SOP<sub>Spec</sub> 
                  see Methods section in Eichenberg et al. (2020). </font>"),
             br(),
             tableOutput(outputId = "table"),
