@@ -100,6 +100,8 @@ ui<- fluidPage(
                                   ')),
             h4("Maps of occurrence probability (OP)"),
             HTML("<font size=1>This site is a companion to the publication of Eichenberg et al. (2020). <br> 
+                 The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. <br>
+                 Despite careful checking and statistical processing, the maps shown here come without liability for completeness or incompleteness. <br>
                  Occurrence probabilities are estimates of species occurrence probability 
                  corrected for potential biases due to incomplete reporting ('reporting bias') based 
                  on the Frescalo algorithm 
