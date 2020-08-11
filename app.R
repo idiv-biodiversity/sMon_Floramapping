@@ -99,13 +99,13 @@ ui<- fluidPage(
                                   });
                                   ')),
             h4("Maps of occurrence probability (OP)"),
-            HTML("<font size=1>This site is a companion to the publication of Eichenberg et al. (2020). <br> 
-                 The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. <br>
-                 Despite careful checking and statistical processing, the maps shown here come without liability for completeness or incompleteness. <br>
+            HTML("<font size=2>This site is a companion to the publication of Eichenberg et al. (2020). <br> 
+                 The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. 
+                 Despite careful checking and statistical processing, the maps shown here come <bold>without liability for completeness or incompleteness</bold>. <br>
                  Occurrence probabilities are estimates of species occurrence probability 
                  corrected for potential biases due to incomplete reporting ('reporting bias') based 
                  on the Frescalo algorithm 
-                 (<a href='https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2011.00146.x'>Hill, 2012</a>). 
+                 (<a href='https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2011.00146.x'>Hill, 2012</a>). <br>
                  For detailed information on the Frescalo algorithm and its specifications see Eichenberg et al (2020, Supplementary Information I).</font>"),
             br(),
             tabsetPanel(type = "tabs",
@@ -121,11 +121,11 @@ ui<- fluidPage(
                                           column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
                         )),
             br(),
-            HTML("<font size=1>The table below shows SOP<sub>Spec</sub> of the 
+            HTML("<font size=2>The table below shows SOP<sub>Spec</sub> of the 
                  respective species as well as the absolute changes across the 
                  three study periods.</font>"),
             br(),
-            HTML("<font size=1> For details on the calculation of SOP<sub>Spec</sub> 
+            HTML("<font size=2> For details on the calculation of SOP<sub>Spec</sub> 
                  see Methods section in Eichenberg et al. (2020). </font>"),
             br(),
             tableOutput(outputId = "table"),
