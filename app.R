@@ -186,7 +186,7 @@ server<- function(input, output) {
     allvalssd$values<- allvalssd$values[order(allvalssd$values)]
     
     k<-which(c(max(val_mdat1),max(val_mdat2),max(val_mdat3))==max(allvalsop$values))[1]
-    l<-which(c(max(val_mdat3),max(val_mdat4),max(val_mdat5))==max(allvalssd$values))[1]
+    l<-which(c(max(val_mdat4),max(val_mdat5),max(val_mdat6))==max(allvalssd$values))[1]
     
     op_all_colors<- colorNumeric(viridis(800),
                                  domain=allvalsop$values,
