@@ -12,7 +12,12 @@ library(htmltools)
 library(htmlwidgets)
 library(scales)
 library(cowplot)
+<<<<<<< HEAD
 library(ggplot)
+=======
+library(ggplot2)
+
+>>>>>>> 80f7e0d49cc57315ca60fce1b425fa1f59b51893
 
 myLabelFormat = function(..., reverse_order = FALSE){ 
   if(reverse_order){ 
