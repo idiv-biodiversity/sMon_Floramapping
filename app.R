@@ -12,7 +12,7 @@ library(htmltools)
 library(htmlwidgets)
 library(scales)
 library(cowplot)
-
+library(ggplot)
 
 myLabelFormat = function(..., reverse_order = FALSE){ 
   if(reverse_order){ 
@@ -145,44 +145,51 @@ server<- function(input, output) {
     mapdata5<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_2_sd.rds"))
     mapdata6<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_3_sd.rds"))
     
-    k<-which(c(max(values(mapdata1)[-which(is.na(values(mapdata1)))]),max(values(mapdata2)[-which(is.na(values(mapdata2)))]),max(values(mapdata3)[-which(is.na(values(mapdata3)))]))==max(c(values(mapdata1)[-which(is.na(values(mapdata1)))],values(mapdata2)[-which(is.na(values(mapdata2)))],values(mapdata3)[-which(is.na(values(mapdata3)))])))[1]
-    l<-which(c(max(values(mapdata4)[-which(is.na(values(mapdata4)))]),max(values(mapdata5)[-which(is.na(values(mapdata5)))]),max(values(mapdata6)[-which(is.na(values(mapdata6)))]))==max(c(values(mapdata4)[-which(is.na(values(mapdata4)))],values(mapdata5)[-which(is.na(values(mapdata5)))],values(mapdata6)[-which(is.na(values(mapdata6)))])))[1]
-   
     
     val_mdat1<- values(mapdata1)[-which(is.na(values(mapdata1)))]
+    val_mdat1<- val_mdat1[order(val_mdat1)]
     val_mdat2<- values(mapdata2)[-which(is.na(values(mapdata2)))]
+    val_mdat2<- val_mdat2[order(val_mdat2)]
     val_mdat3<- values(mapdata3)[-which(is.na(values(mapdata3)))]
+    val_mdat3<- val_mdat3[order(val_mdat3)]
     
     val_mdat4<- values(mapdata4)[-which(is.na(values(mapdata4)))]
+    val_mdat4<- val_mdat4[order(val_mdat4)]
     val_mdat5<- values(mapdata5)[-which(is.na(values(mapdata5)))]
+    val_mdat5<- val_mdat5[order(val_mdat5)]
     val_mdat6<- values(mapdata6)[-which(is.na(values(mapdata6)))]
+    val_mdat6<- val_mdat6[order(val_mdat6)]
     
     allvalsop<-data.frame("values"=c(val_mdat1,val_mdat2,val_mdat3))
+    allvalsop<-allvalsop[order(allvalsop$values),]
     allvalssd<-data.frame("values"=c(val_mdat4,val_mdat5,val_mdat6))
+    allvalssd<-allvalssd[order(allvalssd$values),]
     
+    k<-which(c(max(val_mdat1),max(val_mdat2),max(val_mdat3))==max(allvalsop$values))[1]
+    l<-which(c(max(val_mdat4),max(val_mdat4),max(val_mdat4))==max(allvalssd$values))[1]
     
     
     op_all_colors<- colorNumeric(viridis(800),
                                  domain=allvalsop$values,
                                  na.color = "transparent")
     
-    colors_op1<- colorRampPalette(op_all_colors(val_mdat1[order(val_mdat1)]),interpolate="linear")
-    colors_op2<- colorRampPalette(op_all_colors(val_mdat2[order(val_mdat2)]),interpolate="linear")
-    colors_op3<- colorRampPalette(op_all_colors(val_mdat3[order(val_mdat3)]),interpolate="linear")
+    colors_op1<- colorRampPalette(op_all_colors(val_mdat1),interpolate="linear")
+    colors_op2<- colorRampPalette(op_all_colors(val_mdat2),interpolate="linear")
+    colors_op3<- colorRampPalette(op_all_colors(val_mdat3),interpolate="linear")
     
     sd_all_colors<- colorNumeric(cividis(800),
-                                 domain=allvalssd$values[order(allvalssd$values)],
+                                 domain=allvalssd$values,
                                  na.color = "transparent")
     
-    colors_sd1<- colorRampPalette(sd_all_colors(val_mdat4[order(val_mdat4)]),interpolate="linear")
-    colors_sd2<- colorRampPalette(sd_all_colors(val_mdat5[order(val_mdat5)]),interpolate="linear")
-    colors_sd3<- colorRampPalette(sd_all_colors(val_mdat6[order(val_mdat6)]),interpolate="linear")
+    colors_sd1<- colorRampPalette(sd_all_colors(val_mdat4),interpolate="linear")
+    colors_sd2<- colorRampPalette(sd_all_colors(val_mdat5),interpolate="linear")
+    colors_sd3<- colorRampPalette(sd_all_colors(val_mdat6),interpolate="linear")
     
     legdat_OP<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
                            "OP"=seq(from=0,to=1,length.out = 800))
     legdat_sd<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
-                           "sd"=seq(from=min(values(get(paste0("mapdata",l+3)))[-which(is.na(values(get(paste0("mapdata",l+3)))))]),
-                                to=max(values(get(paste0("mapdata",l+3)))[-which(is.na(values(get(paste0("mapdata",l+3)))))]),
+                           "sd"=seq(from=min(values(get(paste0("val_mdat",l+3)))),
+                                to=max(values(get(paste0("val_mdat",l+3)))),
                                 length.out = 800))
     
     legplot_OP<- get_legend(ggplot()+geom_point(data=legdat_OP,aes(x=dummy,y=OP,fill=OP))+
