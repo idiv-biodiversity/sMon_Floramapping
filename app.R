@@ -12,12 +12,8 @@ library(htmltools)
 library(htmlwidgets)
 library(scales)
 library(cowplot)
-<<<<<<< HEAD
-library(ggplot)
-=======
 library(ggplot2)
 
->>>>>>> 80f7e0d49cc57315ca60fce1b425fa1f59b51893
 
 myLabelFormat = function(..., reverse_order = FALSE){ 
   if(reverse_order){ 
@@ -68,60 +64,71 @@ germanmap<- leaflet() %>%
 
 
 ## 
-
-
-
 ui<- fluidPage(
-           sidebarPanel(
-                    radioButtons(inputId="Basemap",
-                                 label="Basemap",
-                                 choices=list("Open Street Map"="OpenStreetMap.Mapnik",
-                                              "Satellite (ESRI)"="Esri.WorldImagery"),
-                                 selected="OpenStreetMap.Mapnik"),
-                      br(),
-               selectInput(inputId = "url",
-                           label="Natural Regions",
-                           choices=list("On"= "http://geodienste.bfn.de/ogc/wms/gliederungen?",
-                                        "Off"= NA),
-                           selected = "Off"),
-               br(),
-               selectizeInput("Species",
-                              "Select a Species",
-                              choices=c("choose"="",spec_choices)
-                              ),
-               br(),
-               sliderInput(inputId="Opacity",
-                           label= "Opacity of active layer",
-                           value=0.8,
-                           min=0, max=1, step=0.1)
-               , width=2,
-           br(),
-           plotOutput(outputId = "legends",height = "120px"))
-           ,
-      mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
-                            Shiny.onInputChange("innerWidth", window.innerWidth);
+  sidebarPanel(
+    radioButtons(inputId="Basemap",
+                 label="Basemap",
+                 choices=list("Open Street Map"="OpenStreetMap.Mapnik",
+                              "Satellite (ESRI)"="Esri.WorldImagery"),
+                 selected="OpenStreetMap.Mapnik"),
+    br(),
+    selectInput(inputId = "url",
+                label="Natural Regions",
+                choices=list("On"= "http://geodienste.bfn.de/ogc/wms/gliederungen?",
+                             "Off"= NA),
+                selected = "On"),
+    br(),
+    selectizeInput("Species",
+                   "Select a Species",
+                   choices=c("choose"="",spec_choices)
+    ),
+    br(),
+    sliderInput(inputId="Opacity",
+                label= "Opacity of active layer",
+                value=0.8,
+                min=0, max=1, step=0.1)
+    , width=2,
+    br(),
+    plotOutput(outputId = "legends",height = "120px"))
+  ,
+  mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
+                                  Shiny.onInputChange("innerWidth", window.innerWidth);
                                   });
                                   $(window).resize(function(e) {
                                   Shiny.onInputChange("innerWidth", window.innerWidth);
                                   });
                                   ')),
-                      h4("Maps of occurrence probability"),
-                tabsetPanel(type = "tabs",
-                            tabPanel("Occurence probabilities",
-                                     fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map1")),
-                                              column(4,"1988-1996 (t2)",leafletOutput(outputId="Map2")),
-                                              column(4,"1997-2017 (t3)",leafletOutput(outputId="Map3")))
-                                    )
-                                     ,
-                            tabPanel("Uncertainty (SD)",
-                                     fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map4")),
-                                              column(4,"1988-1996 (t2)",leafletOutput(outputId="Map5")),
-                                              column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
-                                     )),
-                br(),
-                tableOutput(outputId = "table"),
-                width=10)
-)
+            h4("Maps of occurrence probability (OP)"),
+            HTML("<font size=1>This site is a companion to the publication of Eichenberg et al. (2020). <br> 
+                 Occurrence probabilities are estimates of species occurrence probability 
+                 corrected for potential biases due to incomplete reporting ('reporting bias') based 
+                 on the Frescalo algorithm 
+                 (<a href='https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210X.2011.00146.x'>Hill, 2012</a>). 
+                 For detailed information on the Frescalo algorithm and its specifications see Eichenberg et al (2020, Supplementary Information I).</font>"),
+            br(),
+            tabsetPanel(type = "tabs",
+                        tabPanel("Occurence probabilities",
+                                 fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map1")),
+                                          column(4,"1988-1996 (t2)",leafletOutput(outputId="Map2")),
+                                          column(4,"1997-2017 (t3)",leafletOutput(outputId="Map3")))
+                        )
+                        ,
+                        tabPanel("Uncertainty (SD)",
+                                 fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map4")),
+                                          column(4,"1988-1996 (t2)",leafletOutput(outputId="Map5")),
+                                          column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
+                        )),
+            br(),
+            HTML("<font size=1>The table below shows SOP<sub>Spec</sub> of the 
+                 respective species as well as the absolute changes across the 
+                 three study periods.</font>"),
+            br(),
+            HTML("<font size=1> For details on the calculation of SOP<sub>Spec</sub> 
+                 see Methods section in Eichenberg et al. (2020). </font>"),
+            br(),
+            tableOutput(outputId = "table"),
+            width=10)
+            )
 
 server<- function(input, output) {
   output$Map1 = renderLeaflet({germanmap})
@@ -151,6 +158,7 @@ server<- function(input, output) {
     mapdata6<- readRDS(paste0("./datasets/","ras_",filetab$Taxon[line],"_ts_3_sd.rds"))
     
     
+    
     val_mdat1<- values(mapdata1)[-which(is.na(values(mapdata1)))]
     val_mdat1<- val_mdat1[order(val_mdat1)]
     val_mdat2<- values(mapdata2)[-which(is.na(values(mapdata2)))]
@@ -166,13 +174,12 @@ server<- function(input, output) {
     val_mdat6<- val_mdat6[order(val_mdat6)]
     
     allvalsop<-data.frame("values"=c(val_mdat1,val_mdat2,val_mdat3))
-    allvalsop<-allvalsop[order(allvalsop$values),]
+    allvalsop$values<- allvalsop$values[order(allvalsop$values)]
     allvalssd<-data.frame("values"=c(val_mdat4,val_mdat5,val_mdat6))
-    allvalssd<-allvalssd[order(allvalssd$values),]
+    allvalssd$values<- allvalssd$values[order(allvalssd$values)]
     
     k<-which(c(max(val_mdat1),max(val_mdat2),max(val_mdat3))==max(allvalsop$values))[1]
-    l<-which(c(max(val_mdat4),max(val_mdat4),max(val_mdat4))==max(allvalssd$values))[1]
-    
+    l<-which(c(max(val_mdat3),max(val_mdat4),max(val_mdat5))==max(allvalssd$values))[1]
     
     op_all_colors<- colorNumeric(viridis(800),
                                  domain=allvalsop$values,
@@ -193,31 +200,32 @@ server<- function(input, output) {
     legdat_OP<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
                            "OP"=seq(from=0,to=1,length.out = 800))
     legdat_sd<- data.frame("dummy"=seq(from=0,to=1,length.out = 800),
-                           "sd"=seq(from=min(values(get(paste0("val_mdat",l+3)))),
-                                to=max(values(get(paste0("val_mdat",l+3)))),
-                                length.out = 800))
+                           "sd"=seq(from=min(get(paste0("val_mdat",l+3))),
+                                    to=max(get(paste0("val_mdat",l+3))),
+                                    length.out = 800))
     
     legplot_OP<- get_legend(ggplot()+geom_point(data=legdat_OP,aes(x=dummy,y=OP,fill=OP))+
                               scale_fill_gradientn(colors = viridis(800),name=c("Occurrence \n probability"))+
-                            theme(legend.title = element_text(size = 9,hjust=0.5),
-                                  legend.text = element_text(size=8)))
+                              theme(legend.title = element_text(size = 9,hjust=0.5),
+                                    legend.text = element_text(size=8)))
     
     legplot_sd<- get_legend(ggplot()+geom_point(data=legdat_sd,aes(x=dummy,y=sd,fill=sd))+
                               scale_fill_gradientn(colors = cividis(800),name=c("Standard \n deviation"))+
                               theme(legend.title = element_text(size = 9,hjust=0.5),
                                     legend.text = element_text(size=8)))
+    
     legends<-plot_grid(legplot_OP,legplot_sd,ncol=2)
     
     palette_OP <- colorNumeric(
-        rev(viridis(800)), 
-        domain = rescale(values(get(paste0("mapdata",k))),to=c(0,1)), 
-        na.color = "transparent"
-      )
+      rev(viridis(800)), 
+      domain = rescale(values(get(paste0("mapdata",k))),to=c(0,1)), 
+      na.color = "transparent"
+    )
     
     palette_sd <- colorNumeric(
-        rev(cividis(800)), 
-        domain = values(get(paste0("mapdata",l+3))), 
-        na.color = "transparent")
+      rev(cividis(800)), 
+      domain = values(get(paste0("mapdata",l+3))), 
+      na.color = "transparent")
     
     leafletProxy("Map1") %>% 
       clearImages() %>%
@@ -230,7 +238,7 @@ server<- function(input, output) {
                   attribution="Bundesamt für Naturschutz (BfN)") %>% 
       addRasterImage(mapdata1,colors = colors_op1(800),opacity = opac) %>% 
       addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-      
+    
     leafletProxy("Map2") %>% 
       clearImages() %>%
       clearControls() %>%
@@ -301,8 +309,8 @@ server<- function(input, output) {
     output$table = renderTable({
       species_summary[species_summary$Species==Species,]
     })
-    })
-}    
+  })
+}        
 
 
 shinyApp(ui,server)
