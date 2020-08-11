@@ -12,6 +12,7 @@ library(htmltools)
 library(htmlwidgets)
 library(scales)
 library(cowplot)
+library(ggplot2)
 
 
 myLabelFormat = function(..., reverse_order = FALSE){ 
