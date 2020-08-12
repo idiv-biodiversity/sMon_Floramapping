@@ -123,15 +123,15 @@ ui<- fluidPage(
             br(),
             tabsetPanel(type = "tabs",
                         tabPanel("Occurence probabilities",
-                                 fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map1")),
-                                          column(4,"1988-1996 (t2)",leafletOutput(outputId="Map2")),
-                                          column(4,"1997-2017 (t3)",leafletOutput(outputId="Map3")))
+                                 fluidRow(column(4,h5("1960-1987 (t1)",align="center"),leafletOutput(outputId="Map1")),
+                                          column(4,h5("1988-1996 (t2)",align="center"),leafletOutput(outputId="Map2")),
+                                          column(4,h5("1997-2017 (t3)",align="center"),leafletOutput(outputId="Map3")))
                         )
                         ,
                         tabPanel("Uncertainty (SD)",
-                                 fluidRow(column(4,"1960-1987 (t1)",leafletOutput(outputId="Map4")),
-                                          column(4,"1988-1996 (t2)",leafletOutput(outputId="Map5")),
-                                          column(4,"1997-2017 (t3)",leafletOutput(outputId="Map6")))
+                                 fluidRow(column(4,h5("1960-1987 (t1)",align="center"),leafletOutput(outputId="Map4")),
+                                          column(4,h5("1988-1996 (t2)",align="center"),leafletOutput(outputId="Map5")),
+                                          column(4,h5("1997-2017 (t3)",align="center"),leafletOutput(outputId="Map6")))
                         )),
             HTML("<font size=1> <em>The information displayed here is based on the collection of approx. 29 mio occurrence records in Germany. <br>
                  Despite careful checking and statistical processing, the maps shown here come <b>without liability for completeness or incompleteness</b>. 
