@@ -13,6 +13,8 @@ library(htmlwidgets)
 library(scales)
 library(cowplot)
 library(ggplot2)
+library(png)
+
 
 
 myLabelFormat = function(..., reverse_order = FALSE){ 
@@ -54,6 +56,8 @@ bundeslander<- readRDS("./datasets/bundeslander.rds")
 ## Overview on Species SOP and changes
 species_summary<- readRDS("./datasets/speciessummary.rds")
 
+sMon_image<- readPNG("./sMon_image.png")
+
 species_summary$Species<- as.character(species_summary$Species)
 Encoding(species_summary$Species)<-c("UTF-8")
 
@@ -91,8 +95,12 @@ ui<- fluidPage(
     br(),
     plotOutput(outputId = "legends",height = "120px"),
     HTML("<font size=1> <p align='justify'> <em> We are grateful to the tremendous effort of the countless 
-         people who contributed their plant occurrence records to the different sources that underlie this visualization!</em> </p><font>")),
-    br(),
+         people who contributed their plant occurrence records to the different sources that underlie this visualization!</em> </p><font>"),
+    fluidRow(HTML("<font size=1> <p align='center'> <em>Project Links:</em>"),
+             br(),
+             column(4,tags$a(imageOutput("image1"),href="https://www.idiv.de/en/smon")),
+             column(8,tags$a(imageOutput("image2"),href="https://www.idiv.de/")))
+           ),
     mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
                                   Shiny.onInputChange("innerWidth", window.innerWidth);
                                   });
@@ -145,7 +153,19 @@ server<- function(input, output) {
   output$Map5 = renderLeaflet({germanmap})
   output$Map6 = renderLeaflet({germanmap})
   
+  output$image1<- renderImage({
+      list(src = "./sMon_image.png",
+           contentType = "image/png",
+           width = "41px",
+           height = "40px"
+           )}, deleteFile = FALSE)
   
+  output$image2<- renderImage({
+    list(src = "./iDiv_image.png",
+         contentType = "image/png",
+         width = "60px",
+         height = "24px"
+    )}, deleteFile = FALSE)
   
   observeEvent(c(input$Basemap,input$url,input$Species,input$Opacity),{
     
