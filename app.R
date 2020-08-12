@@ -98,9 +98,14 @@ ui<- fluidPage(
          people who contributed their plant occurrence records to the different sources that underlie this visualization!</em> </p><font>"),
     fluidRow(HTML("<font size=1> <p align='center'> <em>Project Links:</em>"),
              br(),
-             column(4,tags$a(imageOutput("image1"),href="https://www.idiv.de/en/smon")),
-             column(8,tags$a(imageOutput("image2"),href="https://www.idiv.de/")))
-           ),
+             column(4,tags$a(imageOutput("image1"),
+                             href="https://www.idiv.de/en/smon",
+                             target="_blank",
+                             alt="Go to sMon Homepage")),
+             column(8,tags$a(imageOutput("image2"),
+                             href="https://www.idiv.de/",
+                             target="_blank"))
+           )),
     mainPanel(tags$head(tags$script('$(document).on("shiny:connected", function(e) {
                                   Shiny.onInputChange("innerWidth", window.innerWidth);
                                   });
