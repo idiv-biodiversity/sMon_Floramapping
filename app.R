@@ -181,35 +181,6 @@ server<- function(input, output) {
       input$stats_type_tabs
     ), {
 
-    my_leaflet_proxy <- function(mapId, map, ...) {
-
-      leafletProxy(mapId = mapId) %>%
-        clearImages() %>%
-        clearControls() %>%
-        clearShapes() %>%
-        addProviderTiles(provider = input$Basemap) %>%
-        addWMSTiles(
-          baseUrl = url,
-          layers = "Naturraeume",
-          options = WMSTileOptions(transparent = TRUE,
-          format = "image/png"),
-          attribution = " Bundesamt für Naturschutz (BfN)"
-        ) %>%
-        addRasterImage(
-          map = map,
-          colors = colors_op1(800),
-          opacity = opac
-        ) %>%
-        addPolygons(
-          data = bundeslander,
-          color = "black",
-          fillColor = NA,
-          fillOpacity = 0,
-          weight = 0.8
-        )
-    }
-
-
     Species<- if(input$Species=="") {c("empty")} else{input$Species}
     url<- input$url
     
@@ -295,12 +266,46 @@ server<- function(input, output) {
       domain = values(get(paste0("mapdata",l+3))), 
       na.color = "transparent")
     
-    my_leaflet_proxy("Map1", mapdata1)
-    my_leaflet_proxy("Map2", mapdata2)
-    my_leaflet_proxy("Map3", mapdata3)
-    my_leaflet_proxy("Map4", mapdata4)
-    my_leaflet_proxy("Map5", mapdata5)
-    my_leaflet_proxy("Map6", mapdata6)
+    my_leaflet_change <- function(map, mapdata) {
+
+        clearImages(map) %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addProviderTiles(provider = input$Basemap) %>%
+        addWMSTiles(
+          baseUrl = url,
+          layers = "Naturraeume",
+          options = WMSTileOptions(transparent = TRUE,
+          format = "image/png"),
+          attribution = " Bundesamt für Naturschutz (BfN)"
+        ) %>%
+        addRasterImage(
+          map = mapdata,
+          colors = colors_op1(800),
+          opacity = opac
+        ) %>%
+        addPolygons(
+          data = bundeslander,
+          color = "black",
+          fillColor = NA,
+          fillOpacity = 0,
+          weight = 0.8
+        )
+    }
+
+    leafletProxy(mapId = "Map1") %>%
+      my_leaflet_change(mapdata = mapdata1)
+    leafletProxy(mapId = "Map2") %>%
+      my_leaflet_change(mapdata = mapdata2)
+    leafletProxy(mapId = "Map3") %>%
+      my_leaflet_change(mapdata = mapdata3)
+    leafletProxy(mapId = "Map4") %>%
+      my_leaflet_change(mapdata = mapdata4)
+    leafletProxy(mapId = "Map5") %>%
+      my_leaflet_change(mapdata = mapdata5)
+    leafletProxy(mapId = "Map6") %>%
+      my_leaflet_change(mapdata = mapdata6)
+
 
     
     output$legends = renderPlot({plot(legends)})
