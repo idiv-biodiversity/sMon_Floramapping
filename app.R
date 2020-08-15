@@ -266,47 +266,13 @@ server<- function(input, output) {
       domain = values(get(paste0("mapdata",l+3))), 
       na.color = "transparent")
     
-    my_leaflet_change <- function(map, mapdata) {
 
-        clearImages(map) %>%
-        clearControls() %>%
-        clearShapes() %>%
-        addProviderTiles(provider = input$Basemap) %>%
-        addWMSTiles(
-          baseUrl = url,
-          layers = "Naturraeume",
-          options = WMSTileOptions(transparent = TRUE,
-          format = "image/png"),
-          attribution = " Bundesamt für Naturschutz (BfN)"
-        ) %>%
-        addRasterImage(
-          map = mapdata,
-          colors = colors_op1(800),
-          opacity = opac
-        ) %>%
-        addPolygons(
-          data = bundeslander,
-          color = "black",
-          fillColor = NA,
-          fillOpacity = 0,
-          weight = 0.8
-        )
-    }
-
-    leafletProxy(mapId = "Map1") %>%
-      my_leaflet_change(mapdata = mapdata1)
-    leafletProxy(mapId = "Map2") %>%
-      my_leaflet_change(mapdata = mapdata2)
-    leafletProxy(mapId = "Map3") %>%
-      my_leaflet_change(mapdata = mapdata3)
-    leafletProxy(mapId = "Map4") %>%
-      my_leaflet_change(mapdata = mapdata4)
-    leafletProxy(mapId = "Map5") %>%
-      my_leaflet_change(mapdata = mapdata5)
-    leafletProxy(mapId = "Map6") %>%
-      my_leaflet_change(mapdata = mapdata6)
-
-
+    my_leaflet_proxy("Map1", provider = input$Basemap, url, mapdata1, colors_op1(800), opac, bundeslander)
+    my_leaflet_proxy("Map2", provider = input$Basemap, url, mapdata2, colors_op2(800), opac, bundeslander)
+    my_leaflet_proxy("Map3", provider = input$Basemap, url, mapdata3, colors_op3(800), opac, bundeslander)
+    my_leaflet_proxy("Map4", provider = input$Basemap, url, mapdata4, colors_sd1(800), opac, bundeslander)
+    my_leaflet_proxy("Map5", provider = input$Basemap, url, mapdata5, colors_sd2(800), opac, bundeslander)
+    my_leaflet_proxy("Map6", provider = input$Basemap, url, mapdata6, colors_sd3(800), opac, bundeslander)
     
     output$legends = renderPlot({plot(legends)})
     
@@ -314,7 +280,7 @@ server<- function(input, output) {
       species_summary[species_summary$Species==Species,]
     })
   })
-}        
+}
 
 
 shinyApp(ui,server)
