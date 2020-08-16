@@ -266,14 +266,72 @@ server<- function(input, output) {
       domain = values(get(paste0("mapdata",l+3))), 
       na.color = "transparent")
     
+    ##########################################################################
+    # creates or updates maps
+    # NOTE: while most arguments are dynamic many are updated the same for all
+    # maps, how to avoid duplication here?
+    ##########################################################################
 
-    my_leaflet_proxy("Map1", provider = input$Basemap, url, mapdata1, colors_op1(800), opac, bundeslander)
-    my_leaflet_proxy("Map2", provider = input$Basemap, url, mapdata2, colors_op2(800), opac, bundeslander)
-    my_leaflet_proxy("Map3", provider = input$Basemap, url, mapdata3, colors_op3(800), opac, bundeslander)
-    my_leaflet_proxy("Map4", provider = input$Basemap, url, mapdata4, colors_sd1(800), opac, bundeslander)
-    my_leaflet_proxy("Map5", provider = input$Basemap, url, mapdata5, colors_sd2(800), opac, bundeslander)
-    my_leaflet_proxy("Map6", provider = input$Basemap, url, mapdata6, colors_sd3(800), opac, bundeslander)
-    
+    my_leaflet_proxy(
+      "Map1",
+      provider = input$Basemap,
+      url,
+      mapdata1,
+      colors_op1(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map2",
+      provider = input$Basemap,
+      url,
+      mapdata2,
+      colors_op2(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map3",
+      provider = input$Basemap,
+      url,
+      mapdata3,
+      colors_op3(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map4",
+      provider = input$Basemap,
+      url,
+      mapdata4,
+      colors_sd1(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map5",
+      provider = input$Basemap,
+      url,
+      mapdata5,
+      colors_sd2(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map6",
+      provider = input$Basemap,
+      url,
+      mapdata6,
+      colors_sd3(800),
+      opac,
+      bundeslander
+    )
+
     output$legends = renderPlot({plot(legends)})
     
     output$table = renderTable({

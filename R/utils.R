@@ -1,3 +1,4 @@
+# wrap leaflet proxy chain for easier maintainability
 my_leaflet_proxy <- function(map,
                              provider,
                              url,
@@ -18,7 +19,8 @@ my_leaflet_proxy <- function(map,
     baseUrl = url,
     layers = "Naturraeume",
     options = WMSTileOptions(transparent = TRUE, format = "image/png"),
-    attribution = "Bundesamt für Naturschutz (BfN)") %>%
+    attribution = "Bundesamt für Naturschutz (BfN)"
+  ) %>%
 
   addRasterImage(
     mapdata,
