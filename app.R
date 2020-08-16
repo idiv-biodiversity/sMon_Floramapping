@@ -122,6 +122,7 @@ ui<- fluidPage(
                  For detailed information on the Frescalo algorithm and its specifications see Eichenberg et al (2020, Supplementary Information I).</font>"),
             br(),
             tabsetPanel(type = "tabs",
+                        id = "stats_type_tabs",
                         tabPanel("Occurence probabilities",
                                  fluidRow(column(4,h5("1960-1987 (t1)",align="center"),leafletOutput(outputId="Map1")),
                                           column(4,h5("1988-1996 (t2)",align="center"),leafletOutput(outputId="Map2")),
@@ -172,8 +173,14 @@ server<- function(input, output) {
          height = "24px"
     )}, deleteFile = FALSE)
   
-  observeEvent(c(input$Basemap,input$url,input$Species,input$Opacity),{
-    
+  observeEvent(
+    c(input$Basemap,
+      input$url,
+      input$Species,
+      input$Opacity,
+      input$stats_type_tabs
+    ), {
+
     Species<- if(input$Species=="") {c("empty")} else{input$Species}
     url<- input$url
     
