@@ -266,90 +266,79 @@ server<- function(input, output) {
       domain = values(get(paste0("mapdata",l+3))), 
       na.color = "transparent")
     
-    leafletProxy("Map1") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
-      addRasterImage(mapdata1,colors = colors_op1(800),opacity = opac) %>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    leafletProxy("Map2") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata2,colors = colors_op2(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    leafletProxy("Map3") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata3,colors = colors_op3(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    
-    leafletProxy("Map4") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
-      addRasterImage(mapdata4,colors = colors_sd1(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    leafletProxy("Map5") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata5,colors = colors_sd2(800),opacity = opac) %>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    leafletProxy("Map6") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata6,colors = colors_sd3(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
+    ##########################################################################
+    # creates or updates maps
+    # NOTE: while most arguments are dynamic many are updated the same for all
+    # maps, how to avoid duplication here?
+    ##########################################################################
+
+    my_leaflet_proxy(
+      "Map1",
+      provider = input$Basemap,
+      url,
+      mapdata1,
+      colors_op1(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map2",
+      provider = input$Basemap,
+      url,
+      mapdata2,
+      colors_op2(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map3",
+      provider = input$Basemap,
+      url,
+      mapdata3,
+      colors_op3(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map4",
+      provider = input$Basemap,
+      url,
+      mapdata4,
+      colors_sd1(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map5",
+      provider = input$Basemap,
+      url,
+      mapdata5,
+      colors_sd2(800),
+      opac,
+      bundeslander
+    )
+
+    my_leaflet_proxy(
+      "Map6",
+      provider = input$Basemap,
+      url,
+      mapdata6,
+      colors_sd3(800),
+      opac,
+      bundeslander
+    )
+
     output$legends = renderPlot({plot(legends)})
     
     output$table = renderTable({
       species_summary[species_summary$Species==Species,]
     })
   })
-}        
+}
 
 
 shinyApp(ui,server)
