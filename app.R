@@ -181,6 +181,35 @@ server<- function(input, output) {
       input$stats_type_tabs
     ), {
 
+    my_leaflet_proxy <- function(mapId, map, ...) {
+
+      leafletProxy(mapId = mapId) %>%
+        clearImages() %>%
+        clearControls() %>%
+        clearShapes() %>%
+        addProviderTiles(provider = input$Basemap) %>%
+        addWMSTiles(
+          baseUrl = url,
+          layers = "Naturraeume",
+          options = WMSTileOptions(transparent = TRUE,
+          format = "image/png"),
+          attribution = " Bundesamt für Naturschutz (BfN)"
+        ) %>%
+        addRasterImage(
+          map = map,
+          colors = colors_op1(800),
+          opacity = opac
+        ) %>%
+        addPolygons(
+          data = bundeslander,
+          color = "black",
+          fillColor = NA,
+          fillOpacity = 0,
+          weight = 0.8
+        )
+    }
+
+
     Species<- if(input$Species=="") {c("empty")} else{input$Species}
     url<- input$url
     
@@ -266,82 +295,13 @@ server<- function(input, output) {
       domain = values(get(paste0("mapdata",l+3))), 
       na.color = "transparent")
     
-    leafletProxy("Map1") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
-      addRasterImage(mapdata1,colors = colors_op1(800),opacity = opac) %>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    leafletProxy("Map2") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata2,colors = colors_op2(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    leafletProxy("Map3") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata3,colors = colors_op3(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    
-    leafletProxy("Map4") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)") %>% 
-      addRasterImage(mapdata4,colors = colors_sd1(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    leafletProxy("Map5") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata5,colors = colors_sd2(800),opacity = opac) %>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
-    
-    leafletProxy("Map6") %>% 
-      clearImages() %>%
-      clearControls() %>%
-      clearShapes() %>%
-      addProviderTiles(provider = input$Basemap) %>%
-      addWMSTiles(baseUrl = url,
-                  layers = "Naturraeume", 
-                  options = WMSTileOptions(transparent = TRUE,format = "image/png"), 
-                  attribution="Bundesamt für Naturschutz (BfN)")%>% 
-      addRasterImage(mapdata6,colors = colors_sd3(800),opacity = opac)%>% 
-      addPolygons(data=bundeslander, color="black", fillColor = NA, fillOpacity = 0, weight=0.8)
-    
+    my_leaflet_proxy("Map1", mapdata1)
+    my_leaflet_proxy("Map2", mapdata2)
+    my_leaflet_proxy("Map3", mapdata3)
+    my_leaflet_proxy("Map4", mapdata4)
+    my_leaflet_proxy("Map5", mapdata5)
+    my_leaflet_proxy("Map6", mapdata6)
+
     
     output$legends = renderPlot({plot(legends)})
     
