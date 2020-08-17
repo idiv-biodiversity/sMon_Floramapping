@@ -132,13 +132,17 @@ ui <-  fluidPage(
                            target="_blank"))
            )),
     mainPanel(tags$head(
-                  tags$script('$(document).on("shiny:connected", function(e) {
-                                  Shiny.onInputChange("innerWidth", window.innerWidth);
-                                  });
+                  tags$script('$(document).on("shiny:connected", 
+                                              function(e) {
+                                              Shiny.onInputChange("innerWidth", 
+                                              window.innerWidth);
+                                              });
                                   $(window).resize(function(e) {
-                                  Shiny.onInputChange("innerWidth", window.innerWidth);
+                                  Shiny.onInputChange("innerWidth", 
+                                                      window.innerWidth);
                                   });
-                                  ')),
+                              ')
+                  ),
             h4("Maps of occurrence probability (OP)"),
             HTML("<font size=2>This site is a companion to the 
                   publication of Eichenberg et al. (2020). <br> 
