@@ -187,7 +187,116 @@ ui <-  fluidPage(
                                                  leafletOutput(outputId = "Map6")
                                                  )
                                           )
-                        )
+                        ),
+                        tabPanel("Methodological information",
+                                 h3("Data compilation"),
+                                 br(),
+                                 HTML("We compiled an extensive dataset of approx. 29
+                                      million occurrence records in Germany between 
+                                      1960 and 2017 from 23 different data 
+                                      sources (Table S1 in Eichenberg et al., 2020). 
+                                      The full dataset comprises the non-aggregated data
+                                      underlying the German Distribution Atlas of 
+                                      Ferns and Flowering Plants, restricted to 
+                                      observations between 1960 and 2013. We extended 
+                                      this dataset to the year 2017 by integrating data 
+                                      from more recent habitat mapping projects of 
+                                      federal states, vegetation relevés provided in 
+                                      two major German databases, GVRD (
+                                      <a href='http://vegetation-db.biologie.uni-halle.de'>
+                                      http://vegetation-db.biologie.uni-halle.de</a>) 
+                                      and vegetweb 2.0 (<a href='https://www.vegetweb.de'>
+                                      https://www.vegetweb.de</a>) 
+                                      and from universities and private collections 
+                                      (see Eichenberg et al. 2020 for further details)."),
+                                 br(),
+                                 br(),
+                                 h3("Determination of study periods"),
+                                 br(),
+                                 HTML("For analyzing trends, the dataset was binned into three periods 
+                                      (1960-1987, 1988-1996, 1997-2017), each of them with similar 
+                                      number of total records and covering all 12024 German grid-cells. 
+                                      The temporal extent of these periods was determined by the need 
+                                      to find periods of similar coverage (spatial and taxonomically) 
+                                      of the whole nation (see Appendix I in Eichenberg et al. 2020 
+                                      for further details)."),
+                                 br(),
+                                 br(),
+                                 h3("Species selection and Nomenclature"),
+                                 br(),
+                                 HTML("Taxa were harmonized using an accepted common taxonomic reference 
+                                      list for Germany (GermanSL; <a href='https://germansl.infinitenature.org/'>
+                                      https://germansl.infinitenature.org/</a>). 
+                                      Subspecies, variants etc. were raised to the species or, if necessary, to the 
+                                      aggregate level. We excluded species that were recorded in only one of the 
+                                      three periods or had fewer than 23 records in total. 
+                                      Species were characterized according to their floristic status either as natives, 
+                                      archaeophytes (non-natives introduced before 1492) or 
+                                      neophytes (non-natives introduced after 1492,) using 
+                                      information available from the database BiolFlor (<a href='https://www.ufz.de/biolflor/index.jsp'>
+                                      https://www.ufz.de/biolflor/index.jsp</a>) 
+                                      and FloraWeb (<a href='http://www.floraweb.de'>
+                                      http://www.floraweb.de/</a>). 
+                                      Species with an unknown floristic status were excluded. This left 
+                                      us with a total of 2245 species for analysis, 
+                                      equaling 58% of all German vascular plants 
+                                      (if raised to a similar taxonomic level as used for the analyses 
+                                      in Eichenberg et al., 2020)."),
+                                 br(),
+                                 br(),
+                                 h3("Correction for false absences"),
+                                 HTML("Where occurrence records do not originate from a project focusing 
+                                      on the complete floristic inventory or does not use complete 
+                                      check-lists, false absences (i.e. not reporting a species that was 
+                                      present, but was either not detected or detected but not reported) 
+                                      are an issue. In addition, atlas projects, which aim at taxonomic 
+                                      completeness may not be finished in a federal state completely 
+                                      within one of the defined study periods, leading to taxonomic or 
+                                      spatial gaps in the data of a single study period. 
+                                      To correct for this so-called reporting bias, we used the Frescalo 
+                                      algorithm available in the R package ‘sparta’ 
+                                      (<a href='https://github.com/BiologicalRecordsCentre/sparta'>
+                                      https://github.com/BiologicalRecordsCentre/sparta</a>). 
+                                      Briefly, the Frescalo algorithm calculates the occurrence probability (OP) 
+                                      of a species not detected or reported in a focal grid-cell, 
+                                      based on the frequency of this species in the local neighborhood 
+                                      (here: 100 grid-cells) of this cell, while accounting for the 
+                                      ecological similarity of the neighborhood. Ecological similarity of 
+                                      the neighboring grid-cells was calculated based on a set of 76 variables, 
+                                      comprising climatic, topographic and edaphic measures. A detailed 
+                                      description of the specifications for the Frescalo algorithm is 
+                                      given in Appendix I (c.f. Eichenberg et al. 2020)."),
+                                 br(),
+                                 br(),
+                                 h3("Definition of 'Occurrence' in the context of Eichenberg et al. (2020)"),
+                                 br(),
+                                 HTML("Occurrence is defined as the sum of occurrence probabilities over all grid cells
+                                      in which a species occurred in a certain time step. 
+                                      Maps of the spatial distribution of a given species across 
+                                      the study region at a given time are not a direct outcome 
+                                      of the Frescalo algorithm as available in ’sparta’. 
+                                      The spatial distribution of the probability of a species 
+                                      being present at the focal grid-cell of neighborhood in a 
+                                      certain period can be readily calculated from the available 
+                                      output using the Equations given in Eichenberg et al. (2020). 
+                                      Nationwide occurrence is approximated by summing up the values of 
+                                      grid-cell occurrence probability across all grid cells in which a 
+                                      species is detected in a certain timestep."),
+                                 br(),
+                                 br(),
+                                 h3("Definition of 'species-richness' in the context of Eichenberg et al. (2020)"),
+                                 br(),
+                                 HTML("We summed up the occurrence probabilities of all species within 
+                                      a grid-cell as an estimate of species-richness (SOP<sub>Grid</sub>), 
+                                      while acknowledging that it is not species-richness per-se, since 
+                                      our analysis does not include the very rare species (see 'Species selection and Nomenclature').
+                                      Hence, our species-richness values are underestimating actual grid-cell 
+                                      species-richness. However, SOP<sub>Grid</sub> was found to be highly significantly 
+                                      correlated (r= 0.39, p< 0.001) to species numbers in grid-cells of the 
+                                      FlorKart dataset that were identified to be well-sampled by previous research. 
+                                      Therefore, changes in SOP<sub>Grid</sub> can be interpreted as meaningfully 
+                                      representing relative changes between grid-cells and timesteps.")
+                                 )
                         ),
             HTML("<font size=1> <em>The information displayed here is based on 
                   the collection of approx. 29 mio occurrence records in Germany. <br>
